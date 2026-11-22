@@ -28,7 +28,16 @@
     "tema": "Torsión",
     "dificultad": "alta",
     "enunciado": "Un eje circular macizo de diámetro d = 50 mm transmite un par torsor T = 1.2 kN·m. Determine el esfuerzo cortante máximo por torsión.",
-    "respuesta": "J = π·d⁴/32 = π·(0.050)⁴/32 = 6.136×10⁻⁷ m⁴. c = d/2 = 0.025 m. τ_max = T·c/J = (1200 · 0.025)/6.136×10⁻⁷ ≈ 48.9 MPa.",
+    "respuesta": "J = π·d⁴/32 = π·(0.050)⁴/32 = 6.136×10⁻⁷ m⁴. c = d/2 = 0.025 m. El esfuerzo cortante máximo es \\( \\tau_{max} = \\dfrac{T\\,c}{J} = \\dfrac{1200 \\cdot 0.025}{6.136\\times10^{-7}} \\approx 48.9 \\text{ MPa} \\).",
     "fuente": "Hibbeler, Mecánica de Materiales"
+  },
+  {
+    "id": "viga-voladizo-01",
+    "tema": "Flexión",
+    "dificultad": "media",
+    "enunciado": "Una viga en voladizo de longitud L = 3 m soporta una carga puntual P = 5 kN en su extremo libre. Dibuje el esquema y determine el momento flector máximo.",
+    "diagrama": "\\draw[thick] (0,0) -- (5,0);\n\\fill[pattern=north east lines] (-0.4,-0.6) rectangle (0,0.6);\n\\draw (-0.4,-0.6) -- (-0.4,0.6);\n\\draw[->,very thick,red] (5,1.2) -- (5,0.1) node[midway,right]{$P$};\n\\draw[<->] (0,-0.9) -- (5,-0.9) node[midway,below]{$L$};",
+    "respuesta": "El momento flector máximo ocurre en el empotramiento (x = 0): \\( M_{max} = P \\cdot L = 5 \\text{ kN} \\times 3 \\text{ m} = 15 \\text{ kN·m} \\). El diagrama de momento varía linealmente desde −15 kN·m en el empotramiento hasta 0 en el extremo libre.",
+    "fuente": "Beer & Johnston, Mecánica de Materiales"
   }
 ]

@@ -1,27 +1,45 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-tema="oscuro">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Banco de problemas · Mecánica de Sólidos</title>
+
+  <link rel="preconnect" href="https://rsms.me" />
+  <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+
+  <!-- TikZJax: compila diagramas TikZ a SVG en el navegador -->
+  <link rel="stylesheet" type="text/css" href="https://tikzjax.com/v1/fonts.css" />
+  <script>window.TikZJaxNoAutostart = true;</script>
+  <script src="https://tikzjax.com/v1/tikzjax.js"></script>
+
+  <!-- MathJax: renderiza fórmulas LaTeX en enunciados y respuestas -->
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [["\\(", "\\)"], ["$", "$"]], displayMath: [["\\[", "\\]"], ["$$", "$$"]] },
+      options: { skipHtmlTags: ["script", "noscript", "style", "textarea", "pre"] }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+
   <link rel="stylesheet" href="assets/styles.css" />
 </head>
 <body>
   <header class="site-header">
     <div class="wrap">
-      <h1>Banco de problemas · Mecánica de Sólidos</h1>
-      <p class="subtitle">Problemas con respuestas para estudiar. Agrega los tuyos subiendo archivos JSON.</p>
+      <div class="header-top">
+        <div>
+          <h1>Banco de problemas · Mecánica de Sólidos</h1>
+          <p class="subtitle">Problemas con respuestas, fórmulas y diagramas TikZ para estudiar. Agrega los tuyos subiendo archivos JSON.</p>
+        </div>
+        <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Cambiar tema" title="Cambiar tema claro/oscuro">🌙</button>
+      </div>
     </div>
   </header>
 
   <main class="wrap">
     <section class="toolbar" aria-label="Controles">
-      <input
-        type="search"
-        id="buscador"
-        placeholder="Buscar por enunciado, tema o fuente…"
-        aria-label="Buscar problemas"
-      />
+      <input type="search" id="buscador" placeholder="Buscar por enunciado, tema o fuente…" aria-label="Buscar problemas" />
       <select id="filtro-tema" aria-label="Filtrar por tema">
         <option value="">Todos los temas</option>
       </select>
@@ -36,6 +54,7 @@
     <section class="cargador" aria-label="Agregar problemas">
       <div id="dropzone" class="dropzone" tabindex="0" role="button"
            aria-label="Arrastra archivos JSON aquí o haz clic para seleccionar">
+        <span class="dz-icon" aria-hidden="true">📄</span>
         <strong>Agregar problemas</strong>
         <span>Arrastra archivos <code>.json</code> aquí o haz clic para seleccionarlos.</span>
         <input type="file" id="file-input" accept="application/json,.json" multiple hidden />
@@ -56,7 +75,9 @@
       <p>
         Banco de problemas de Mecánica de Sólidos · Página estática en GitHub Pages.
         Los problemas que subes se guardan en tu navegador; usa <strong>Exportar JSON</strong>
-        para guardarlos en el repositorio de forma permanente.
+        para guardarlos en el repositorio de forma permanente. Diagramas por
+        <a href="https://tikzjax.com/" target="_blank" rel="noopener">TikZJax</a>,
+        fórmulas por <a href="https://www.mathjax.org/" target="_blank" rel="noopener">MathJax</a>.
       </p>
     </div>
   </footer>
@@ -68,8 +89,12 @@
         <span class="chip chip-dificultad"></span>
       </div>
       <div class="problema-enunciado"></div>
+      <div class="problema-diagrama-enunciado"></div>
       <button type="button" class="btn btn-revelar">Mostrar respuesta</button>
-      <div class="problema-respuesta" hidden></div>
+      <div class="problema-respuesta" hidden>
+        <div class="respuesta-texto"></div>
+        <div class="problema-diagrama-respuesta"></div>
+      </div>
       <div class="problema-fuente"></div>
     </article>
   </template>

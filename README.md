@@ -27,14 +27,21 @@ Al recargar la página, esos problemas ya forman parte del banco para cualquiera
 
 Cada archivo es una **lista** de problemas. También se acepta un único objeto. Campos:
 
-| Campo         | Requerido | Descripción                                           |
-|---------------|-----------|-------------------------------------------------------|
-| `id`          | No        | Identificador único. Si falta, se genera automáticamente. Mismo `id` = sobrescribe. |
-| `tema`        | No        | Tema del problema (p. ej. `Torsión`). Por defecto `General`. |
-| `dificultad`  | No        | `baja`, `media` o `alta`.                             |
-| `enunciado`   | **Sí**    | Texto del problema.                                   |
-| `respuesta`   | No        | Solución. Si falta, no se muestra el botón.           |
-| `fuente`      | No        | Libro o referencia.                                   |
+| Campo                | Requerido | Descripción                                           |
+|----------------------|-----------|-------------------------------------------------------|
+| `id`                 | No        | Identificador único. Si falta, se genera automáticamente. Mismo `id` = sobrescribe. |
+| `tema`               | No        | Tema del problema (p. ej. `Torsión`). Por defecto `General`. |
+| `dificultad`         | No        | `baja`, `media` o `alta`.                             |
+| `enunciado`          | **Sí**    | Texto del problema. Admite fórmulas LaTeX con `\( ... \)`. |
+| `diagrama`           | No        | Código TikZ de un diagrama para el enunciado.         |
+| `respuesta`          | No        | Solución. Admite fórmulas LaTeX. Si falta (y no hay `diagrama_respuesta`), no se muestra el botón. |
+| `diagrama_respuesta` | No        | Código TikZ de un diagrama para la respuesta.         |
+| `fuente`             | No        | Libro o referencia.                                   |
+
+### Fórmulas y diagramas
+
+- **Fórmulas:** escribe LaTeX dentro de `enunciado` y `respuesta` entre `\( ... \)` (en línea) o `\[ ... \]` (centradas); las renderiza [MathJax](https://www.mathjax.org/). En JSON la barra invertida va **doble**: `\\( \\sigma = P/A \\)`.
+- **Diagramas TikZ:** el valor de `diagrama` / `diagrama_respuesta` es código TikZ que compila [TikZJax](https://tikzjax.com/) a SVG en el navegador. Escribe solo el interior del `tikzpicture` (el entorno se agrega solo). La primera carga descarga el motor (varios MB) y puede tardar unos segundos; luego queda en caché. Soporta TikZ básico; diagramas que dependan de paquetes externos pueden no renderizar.
 
 Ejemplo:
 

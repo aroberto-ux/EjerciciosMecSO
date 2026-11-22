@@ -2,9 +2,15 @@
  * Página estática. Carga el banco base desde data/problemas.json,
  * permite agregar problemas subiendo archivos JSON (se guardan en
  * localStorage) y exportar el conjunto combinado a un archivo JSON.
+ *
+ * Soporta:
+ *  - Fórmulas LaTeX en "enunciado" y "respuesta" (MathJax).
+ *  - Diagramas TikZ en "diagrama" (enunciado) y "diagrama_respuesta" (respuesta),
+ *    compilados a SVG en el navegador con TikZJax.
  */
 
 const STORAGE_KEY = "banco-problemas-subidos";
+const TEMA_KEY = "banco-problemas-tema";
 const DIFICULTADES = ["baja", "media", "alta"];
 
 const estado = {
@@ -24,7 +30,26 @@ const el = {
   btnLimpiar: document.getElementById("btn-limpiar"),
   mensaje: document.getElementById("mensaje"),
   tpl: document.getElementById("tpl-problema"),
+  themeToggle: document.getElementById("theme-toggle"),
 };
+
+/* ---------- Tema claro/oscuro ---------- */
+
+function aplicarTema(tema) {
+  document.documentElement.dataset.tema = tema;
+  el.themeToggle.textContent = tema === "claro" ? "☀️" : "🌙";
+  localStorage.setItem(TEMA_KEY, tema);
+}
+
+function iniciarTema() {
+  const guardado = localStorage.getItem(TEMA_KEY);
+  const prefiereClaro = window.matchMedia("(prefers-color-scheme: light)").matches;
+  aplicarTema(guardado || (prefiereClaro ? "claro" : "oscuro"));
+  el.themeToggle.addEventListener("click", () => {
+    const actual = document.documentElement.dataset.tema;
+    aplicarTema(actual === "claro" ? "oscuro" : "claro");
+  });
+}
 
 /* ---------- Carga inicial ---------- */
 
@@ -72,6 +97,8 @@ function normalizarProblema(p) {
     dificultad: DIFICULTADES.includes(nivel) ? nivel : "",
     enunciado: (p.enunciado ?? "").toString().trim(),
     respuesta: (p.respuesta ?? "").toString().trim(),
+    diagrama: (p.diagrama ?? "").toString().trim(),
+    diagrama_respuesta: (p.diagrama_respuesta ?? "").toString().trim(),
     fuente: (p.fuente ?? "").toString().trim(),
   };
 }
@@ -126,6 +153,8 @@ function render() {
   const total = todos().length;
   el.contador.textContent =
     `Mostrando ${lista.length} de ${total} problema(s) · ${estado.subidos.length} subido(s) en este navegador.`;
+
+  tipografiarMatematicas();
 }
 
 function crearTarjeta(p) {
@@ -142,15 +171,27 @@ function crearTarjeta(p) {
 
   nodo.querySelector(".problema-enunciado").textContent = p.enunciado;
 
+  // Diagrama del enunciado
+  const contDiagEnun = nodo.querySelector(".problema-diagrama-enunciado");
+  if (p.diagrama) contDiagEnun.appendChild(crearDiagramaTikZ(p.diagrama));
+  else contDiagEnun.remove();
+
   const resp = nodo.querySelector(".problema-respuesta");
   const btn = nodo.querySelector(".btn-revelar");
-  if (p.respuesta) {
-    resp.textContent = p.respuesta;
+  const tieneRespuesta = p.respuesta || p.diagrama_respuesta;
+
+  if (tieneRespuesta) {
+    nodo.querySelector(".respuesta-texto").textContent = p.respuesta;
+    const contDiagResp = nodo.querySelector(".problema-diagrama-respuesta");
+    if (p.diagrama_respuesta) contDiagResp.appendChild(crearDiagramaTikZ(p.diagrama_respuesta));
+    else contDiagResp.remove();
+
     btn.addEventListener("click", () => {
       const oculto = resp.hasAttribute("hidden");
       if (oculto) {
         resp.removeAttribute("hidden");
         btn.textContent = "Ocultar respuesta";
+        tipografiarMatematicas(resp);
       } else {
         resp.setAttribute("hidden", "");
         btn.textContent = "Mostrar respuesta";
@@ -165,6 +206,69 @@ function crearTarjeta(p) {
   nodo.querySelector(".problema-fuente").textContent = p.fuente ? "Fuente: " + p.fuente : "";
   return nodo;
 }
+
+/* ---------- TikZ ---------- */
+
+// Crea un contenedor con un <script type="text/tikz">. TikZJax detecta
+// los scripts nuevos mediante un MutationObserver y los convierte a SVG.
+function crearDiagramaTikZ(codigo) {
+  const cont = document.createElement("div");
+  cont.className = "problema-diagrama";
+
+  const aviso = document.createElement("span");
+  aviso.className = "diagrama-cargando";
+  aviso.textContent = "Renderizando diagrama…";
+  cont.appendChild(aviso);
+
+  const script = document.createElement("script");
+  script.setAttribute("type", "text/tikz");
+  // TikZJax espera el cuerpo de \begin{tikzpicture}...\end{tikzpicture}.
+  script.textContent = normalizarTikZ(codigo);
+  cont.appendChild(script);
+
+  // Procesa este script si TikZJax ya terminó de cargar.
+  programarProcesoTikZ(script, aviso);
+  return cont;
+}
+
+// Asegura que el código tenga el entorno tikzpicture.
+function normalizarTikZ(codigo) {
+  const c = codigo.trim();
+  if (c.includes("\\begin{tikzpicture}")) return c;
+  return `\\begin{tikzpicture}\n${c}\n\\end{tikzpicture}`;
+}
+
+// TikZJax procesa automáticamente scripts añadidos al DOM si ya cargó.
+// Si aún no cargó, se procesarán en window.onload (su arranque por defecto).
+// Quitamos el aviso cuando el <script> sea reemplazado por un <svg>.
+function programarProcesoTikZ(script, aviso) {
+  const padre = script.parentNode || aviso.parentNode;
+  const obs = new MutationObserver(() => {
+    if (padre && padre.querySelector("svg")) {
+      aviso.remove();
+      obs.disconnect();
+    } else if (!script.isConnected) {
+      aviso.remove();
+      obs.disconnect();
+    }
+  });
+  // Observa tras montar en el DOM.
+  requestAnimationFrame(() => {
+    if (script.parentNode) obs.observe(script.parentNode, { childList: true });
+  });
+}
+
+/* ---------- MathJax ---------- */
+
+let mathjaxCola = Promise.resolve();
+function tipografiarMatematicas(scope) {
+  if (!(window.MathJax && window.MathJax.typesetPromise)) return;
+  mathjaxCola = mathjaxCola
+    .then(() => window.MathJax.typesetPromise(scope ? [scope] : undefined))
+    .catch((e) => console.warn("MathJax:", e));
+}
+
+/* ---------- Filtro de temas ---------- */
 
 function refrescarTemas() {
   const temas = [...new Set(todos().map((p) => p.tema))].sort((a, b) => a.localeCompare(b));
@@ -304,6 +408,7 @@ function enlazarEventos() {
 /* ---------- Arranque ---------- */
 
 async function iniciar() {
+  iniciarTema();
   cargarSubidos();
   await cargarBase();
   refrescarTemas();

@@ -3,8 +3,10 @@
     "id": "cambia-este-id-01",
     "tema": "Escribe el tema aquí",
     "dificultad": "media",
-    "enunciado": "Escribe aquí el enunciado completo del problema. Este es el único campo obligatorio.",
-    "respuesta": "Escribe aquí la respuesta o la solución paso a paso. Puedes usar varios renglones.",
+    "enunciado": "Escribe aquí el enunciado completo del problema. Este es el único campo obligatorio. Puedes incluir fórmulas LaTeX entre \\( ... \\), por ejemplo \\( \\sigma = P/A \\).",
+    "diagrama": "Opcional: código TikZ del diagrama del enunciado, por ejemplo: \\draw[thick] (0,0) -- (4,0);  (puedes omitir este campo si no hay diagrama)",
+    "respuesta": "Escribe aquí la respuesta o la solución paso a paso. Admite fórmulas LaTeX \\( ... \\).",
+    "diagrama_respuesta": "Opcional: código TikZ de un diagrama que acompañe la respuesta (p. ej. diagrama de cuerpo libre resuelto).",
     "fuente": "Libro, autor o referencia (opcional)"
   }
 ]
