@@ -53,6 +53,10 @@ Ejemplo:
 
 Hay una plantilla lista para copiar en [`data/plantilla.json`](data/plantilla.json).
 
+## Generar los JSON con una IA
+
+¿Tienes los problemas en texto y quieres que una IA te arme el JSON? Usa el prompt reutilizable de [`PROMPT_IA.md`](PROMPT_IA.md): lo copias en ChatGPT/Claude/Gemini, pegas tus problemas al final y la IA devuelve el JSON listo para subir a la página.
+
 ## Estructura del proyecto
 
 ```
