@@ -1,0 +1,10 @@
+[
+  {
+    "id": "cambia-este-id-01",
+    "tema": "Escribe el tema aquí",
+    "dificultad": "media",
+    "enunciado": "Escribe aquí el enunciado completo del problema. Este es el único campo obligatorio.",
+    "respuesta": "Escribe aquí la respuesta o la solución paso a paso. Puedes usar varios renglones.",
+    "fuente": "Libro, autor o referencia (opcional)"
+  }
+]
